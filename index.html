@@ -1,0 +1,86 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/index.html b/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..0b2bccb262183ec90ade9a2647012596bfe54be0
+--- /dev/null
++++ b/index.html
+@@ -0,0 +1,76 @@
++<!DOCTYPE html>
++<html lang="fr">
++  <head>
++    <meta charset="utf-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1" />
++    <title>Drum Hero</title>
++    <link rel="stylesheet" href="styles.css" />
++  </head>
++  <body>
++    <header class="hud">
++      <h1>Drum Hero</h1>
++      <section class="stats">
++        <p><strong>Score :</strong> <span id="score">0</span></p>
++        <p><strong>Combo :</strong> <span id="combo">0</span></p>
++        <p><strong>Précision :</strong> <span id="accuracy">100%</span></p>
++      </section>
++      <button id="start-button" type="button">▶️ Démarrer</button>
++      <div class="audio-picker">
++        <label for="audio-file">🎵 Charger un MP3 :</label>
++        <input
++          id="audio-file"
++          type="file"
++          accept="audio/mpeg,audio/mp3,audio/*"
++        />
++        <p id="audio-status">Aucun fichier chargé</p>
++      </div>
++    </header>
++
++    <main class="stage">
++      <div class="lanes" role="presentation">
++        <canvas id="playfield" width="480" height="640" aria-label="Piste de jeu"></canvas>
++        <div class="hit-line" aria-hidden="true"></div>
++        <div class="lane-labels" aria-hidden="true">
++          <span>D</span>
++          <span>F</span>
++          <span>J</span>
++          <span>K</span>
++        </div>
++      </div>
++      <aside class="panels">
++        <section class="panel">
++          <h2>Contrôles</h2>
++          <ul>
++            <li>Touche <kbd>D</kbd></li>
++            <li>Touche <kbd>F</kbd></li>
++            <li>Touche <kbd>J</kbd></li>
++            <li>Touche <kbd>K</kbd></li>
++          </ul>
++        </section>
++        <section class="panel">
++          <h2>Astuce</h2>
++          <p>
++            Appuie sur la touche correspondant à la colonne lorsque la note
++            arrive sur la ligne blanche. Le timing compte !
++          </p>
++        </section>
++      </aside>
++    </main>
++
++    <footer>
++      <p>Jeu inspiré par Guitar Hero. Code modernisé pour de meilleures performances.</p>
++    </footer>
++
++    <dialog id="result-dialog">
++      <article>
++        <h2>Fin de partie</h2>
++        <p id="result-score"></p>
++        <p id="result-accuracy"></p>
++        <p id="result-combo"></p>
++        <button id="restart-button" type="button">Rejouer</button>
++      </article>
++    </dialog>
++
++    <script src="script.js" type="module"></script>
++  </body>
++</html>
+ 
+EOF
+)
