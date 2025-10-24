@@ -9,6 +9,8 @@ Mini jeu web inspiré de Guitar Hero. Utilise un canvas pour afficher quatre pis
 3. (Facultatif) Utilise le bouton **Charger un MP3** pour sélectionner un fichier audio local qui sera lu pendant la partie.
 4. Clique sur **Démarrer** puis utilise les touches `D`, `F`, `J` et `K` pour frapper les notes au bon moment.
 
+> 💡 Tout le jeu (HTML, CSS, JavaScript) est maintenant contenu dans ce seul fichier `index.html`, il n'y a rien d'autre à configurer.
+
 ## Mettre en ligne
 
 Le projet est entièrement statique (HTML/CSS/JS), tu peux donc le publier sur n'importe quel hébergeur de fichiers statiques :
@@ -28,7 +30,7 @@ Le projet est entièrement statique (HTML/CSS/JS), tu peux donc le publier sur n
    ```bash
    npx serve .
    ```
-2. Mets en ligne le contenu généré (`index.html`, `styles.css`, `script.js`) sur ton hébergement.
+2. Mets en ligne le fichier `index.html` (qui contient tout le jeu) sur ton hébergement.
 
 ## Fonctionnalités
 
