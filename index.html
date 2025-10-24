@@ -1,10 +1,10 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
 new file mode 100644
-index 0000000000000000000000000000000000000000..0b2bccb262183ec90ade9a2647012596bfe54be0
+index 0000000000000000000000000000000000000000..63bacb2cd466465ccd315c4a697674e914bd3ef8
 --- /dev/null
 +++ b/index.html
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,88 @@
 +<!DOCTYPE html>
 +<html lang="fr">
 +  <head>
@@ -20,8 +20,19 @@ index 0000000000000000000000000000000000000000..0b2bccb262183ec90ade9a2647012596
 +        <p><strong>Score :</strong> <span id="score">0</span></p>
 +        <p><strong>Combo :</strong> <span id="combo">0</span></p>
 +        <p><strong>Précision :</strong> <span id="accuracy">100%</span></p>
++        <p><strong>Mode :</strong> <span id="difficulty-label">Normale</span></p>
 +      </section>
-+      <button id="start-button" type="button">▶️ Démarrer</button>
++      <div class="control-group">
++        <button id="start-button" type="button">▶️ Démarrer</button>
++        <div class="difficulty-picker">
++          <label for="difficulty">Difficulté :</label>
++          <select id="difficulty" name="difficulty">
++            <option value="easy">Facile</option>
++            <option value="normal" selected>Normale</option>
++            <option value="hard">Difficile</option>
++          </select>
++        </div>
++      </div>
 +      <div class="audio-picker">
 +        <label for="audio-file">🎵 Charger un MP3 :</label>
 +        <input
@@ -74,6 +85,7 @@ index 0000000000000000000000000000000000000000..0b2bccb262183ec90ade9a2647012596
 +        <p id="result-score"></p>
 +        <p id="result-accuracy"></p>
 +        <p id="result-combo"></p>
++        <p id="result-difficulty"></p>
 +        <button id="restart-button" type="button">Rejouer</button>
 +      </article>
 +    </dialog>
