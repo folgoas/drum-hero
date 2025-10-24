@@ -8,6 +8,27 @@ Mini jeu web inspiré de Guitar Hero. Utilise un canvas pour afficher quatre pis
 2. (Facultatif) Utilise le bouton **Charger un MP3** pour sélectionner un fichier audio local qui sera lu pendant la partie.
 3. Clique sur **Démarrer** puis utilise les touches `D`, `F`, `J` et `K` pour frapper les notes au bon moment.
 
+## Mettre en ligne
+
+Le projet est entièrement statique (HTML/CSS/JS), tu peux donc le publier sur n'importe quel hébergeur de fichiers statiques :
+
+### GitHub Pages
+1. Crée un dépôt GitHub et pousse les fichiers du dossier.
+2. Dans les paramètres du dépôt, active **Pages** et choisis la branche (généralement `main`) et le dossier racine (`/`).
+3. Patiente quelques minutes : ton jeu sera disponible à l'URL `https://<ton-compte>.github.io/<nom-du-depot>/`.
+
+### Netlify (drag & drop)
+1. Connecte-toi sur [https://app.netlify.com/drop](https://app.netlify.com/drop).
+2. Glisse le dossier `drum-hero` complet dans la zone prévue.
+3. Netlify déploie automatiquement ton site et te fournit une URL que tu peux partager.
+
+### Serveur statique maison
+1. Lance un petit serveur HTTP local, par exemple :
+   ```bash
+   npx serve .
+   ```
+2. Mets en ligne le contenu généré (`index.html`, `styles.css`, `script.js`) sur ton hébergement.
+
 ## Fonctionnalités
 
 - **Loop d'animation** fluide (requestAnimationFrame) avec un système de fenêtres de timing (Parfait, Super, Bien, Raté).
