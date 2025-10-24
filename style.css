@@ -1,10 +1,10 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/styles.css b/styles.css
 new file mode 100644
-index 0000000000000000000000000000000000000000..74b34e32365526a7a83b20c0bb4e46342f94e587
+index 0000000000000000000000000000000000000000..ad3831edff944043f08c65483490b275c2c00288
 --- /dev/null
 +++ b/styles.css
-@@ -0,0 +1,220 @@
+@@ -0,0 +1,260 @@
 +:root {
 +  color-scheme: dark;
 +  --lane-width: 100px;
@@ -38,6 +38,8 @@ index 0000000000000000000000000000000000000000..74b34e32365526a7a83b20c0bb4e4634
 +  display: flex;
 +  align-items: center;
 +  justify-content: space-between;
++  flex-wrap: wrap;
++  gap: clamp(1rem, 3vw, 2.5rem);
 +  padding: 1.5rem clamp(1rem, 4vw, 3rem);
 +  backdrop-filter: blur(6px);
 +  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent);
@@ -48,6 +50,11 @@ index 0000000000000000000000000000000000000000..74b34e32365526a7a83b20c0bb4e4634
 +  display: flex;
 +  gap: 1.5rem;
 +  font-size: 1rem;
++  flex-wrap: wrap;
++}
++
++header .stats p {
++  margin: 0;
 +}
 +
 +header button {
@@ -92,6 +99,39 @@ index 0000000000000000000000000000000000000000..74b34e32365526a7a83b20c0bb4e4634
 +  margin: 0;
 +  font-size: 0.85rem;
 +  color: rgba(255, 255, 255, 0.7);
++}
++
++.control-group {
++  display: flex;
++  flex-direction: column;
++  gap: 0.65rem;
++  align-items: flex-start;
++}
++
++.difficulty-picker {
++  display: flex;
++  flex-direction: column;
++  gap: 0.3rem;
++  font-size: 0.9rem;
++}
++
++.difficulty-picker label {
++  font-weight: 600;
++}
++
++.difficulty-picker select {
++  background: rgba(0, 0, 0, 0.25);
++  border: 1px solid rgba(255, 255, 255, 0.18);
++  border-radius: 999px;
++  padding: 0.45rem 1.15rem;
++  color: #f4f6fb;
++  font-weight: 500;
++  cursor: pointer;
++}
++
++.difficulty-picker select:focus-visible {
++  outline: 2px solid var(--accent);
++  outline-offset: 2px;
 +}
 +
 +.stage {
