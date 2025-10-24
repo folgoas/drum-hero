@@ -5,8 +5,9 @@ Mini jeu web inspiré de Guitar Hero. Utilise un canvas pour afficher quatre pis
 ## Démarrer
 
 1. Ouvre `index.html` dans un navigateur moderne (Chrome, Edge, Firefox).
-2. (Facultatif) Utilise le bouton **Charger un MP3** pour sélectionner un fichier audio local qui sera lu pendant la partie.
-3. Clique sur **Démarrer** puis utilise les touches `D`, `F`, `J` et `K` pour frapper les notes au bon moment.
+2. Choisis une difficulté dans le menu (Facile, Normale ou Difficile) selon ton niveau.
+3. (Facultatif) Utilise le bouton **Charger un MP3** pour sélectionner un fichier audio local qui sera lu pendant la partie.
+4. Clique sur **Démarrer** puis utilise les touches `D`, `F`, `J` et `K` pour frapper les notes au bon moment.
 
 ## Mettre en ligne
 
@@ -33,8 +34,9 @@ Le projet est entièrement statique (HTML/CSS/JS), tu peux donc le publier sur n
 
 - **Loop d'animation** fluide (requestAnimationFrame) avec un système de fenêtres de timing (Parfait, Super, Bien, Raté).
 - **Piste réactive** : flash sur la zone d'impact, affichage du combo et de la précision en temps réel.
+- **Trois niveaux de difficulté** calibrés (Facile, Normale, Difficile) pour progresser en douceur.
 - **Chart de démonstration** généré procéduralement pour tester le jeu.
 - **Fenêtre de résultat** récapitulative (score, précision, meilleur combo).
 - **Lecture audio** : support du chargement de fichiers MP3 locaux via l'API Web Audio.
 
-Le code est pensé pour être facilement extensible : il suffit d'adapter `createDemoChart()` pour charger une partition depuis un fichier JSON ou un backend.
+Le code est pensé pour être facilement extensible : il suffit d'adapter `createChart()` pour charger une partition depuis un fichier JSON ou un backend.

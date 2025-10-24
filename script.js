@@ -10,8 +10,11 @@ const restartButton = document.getElementById("restart-button");
 const resultScore = document.getElementById("result-score");
 const resultAccuracy = document.getElementById("result-accuracy");
 const resultCombo = document.getElementById("result-combo");
+const resultDifficulty = document.getElementById("result-difficulty");
 const audioInput = document.getElementById("audio-file");
 const audioStatus = document.getElementById("audio-status");
+const difficultySelect = document.getElementById("difficulty");
+const difficultyLabel = document.getElementById("difficulty-label");
 
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
 
@@ -20,14 +23,84 @@ const LANE_WIDTH = 100;
 const LANE_GAP = 10;
 const NOTE_HEIGHT = 28;
 const HIT_LINE_Y = canvas.height - 100;
-const SCROLL_SPEED = 360; // pixels / seconde
 const LOOKAHEAD = 2.5; // secondes
 
-const TIMING_WINDOWS = {
-  perfect: 55,
-  great: 95,
-  good: 140,
+const DIFFICULTIES = {
+  easy: {
+    label: "Facile",
+    scrollSpeed: 260,
+    bpm: 90,
+    measures: 12,
+    stepsPerBeat: 2,
+    patterns: [
+      ["d"],
+      [],
+      ["f"],
+      [],
+      ["j"],
+      [],
+      ["k"],
+      [],
+    ],
+    timingWindows: {
+      perfect: 85,
+      great: 130,
+      good: 190,
+    },
+  },
+  normal: {
+    label: "Normale",
+    scrollSpeed: 320,
+    bpm: 110,
+    measures: 16,
+    stepsPerBeat: 2,
+    patterns: [
+      ["d"],
+      ["f"],
+      ["j"],
+      ["k"],
+      ["d"],
+      ["f", "j"],
+      ["k"],
+      ["f"],
+    ],
+    timingWindows: {
+      perfect: 65,
+      great: 105,
+      good: 160,
+    },
+  },
+  hard: {
+    label: "Difficile",
+    scrollSpeed: 360,
+    bpm: 120,
+    measures: 16,
+    stepsPerBeat: 2,
+    patterns: [
+      ["d", "j"],
+      ["f"],
+      ["k"],
+      ["d", "f"],
+      ["j", "k"],
+      ["f"],
+      ["d"],
+      ["k"],
+    ],
+    timingWindows: {
+      perfect: 55,
+      great: 95,
+      good: 140,
+    },
+  },
 };
+
+const defaultDifficulty =
+  difficultySelect && DIFFICULTIES[difficultySelect.value]
+    ? difficultySelect.value
+    : "hard";
+
+let currentScrollSpeed = DIFFICULTIES[defaultDifficulty].scrollSpeed;
+let timingWindows = { ...DIFFICULTIES[defaultDifficulty].timingWindows };
 const SCORE_VALUES = { perfect: 300, great: 150, good: 60 };
 
 const laneColors = getComputedStyle(document.documentElement)
@@ -38,6 +111,8 @@ const laneColors = getComputedStyle(document.documentElement)
 const laneStates = new Map(LANES.map((key) => [key, { pressed: false, flashUntil: 0 }]));
 
 const state = {
+  difficulty: defaultDifficulty,
+  lastRunDifficulty: defaultDifficulty,
   startTime: 0,
   activeNotes: [],
   pendingNotes: [],
@@ -78,7 +153,7 @@ class Note {
   get y() {
     const elapsed = getElapsed();
     const timeUntilHit = this.time - elapsed;
-    return HIT_LINE_Y - timeUntilHit * SCROLL_SPEED;
+    return HIT_LINE_Y - timeUntilHit * currentScrollSpeed;
   }
 }
 
@@ -86,26 +161,22 @@ function getElapsed() {
   return (performance.now() - state.startTime) / 1000;
 }
 
-function createDemoChart() {
-  const bpm = 120;
-  const beat = 60 / bpm;
-  const chart = [];
-  const patterns = [
-    ["d", "j"],
-    ["f"],
-    ["k"],
-    ["d", "f"],
-    ["j", "k"],
-    ["f"],
-    ["d"],
-    ["k"],
-  ];
+function getDifficultySettings(difficultyKey) {
+  return DIFFICULTIES[difficultyKey] ?? DIFFICULTIES.hard;
+}
 
-  for (let measure = 0; measure < 16; measure++) {
+function createChart(difficultyKey) {
+  const settings = getDifficultySettings(difficultyKey);
+  const beat = 60 / settings.bpm;
+  const chart = [];
+  const stepsPerMeasure = settings.stepsPerBeat * 4;
+
+  for (let measure = 0; measure < settings.measures; measure++) {
     const baseTime = measure * 4 * beat;
-    for (let step = 0; step < 8; step++) {
-      const pattern = patterns[(measure + step) % patterns.length];
-      const time = baseTime + step * (beat / 2);
+    for (let step = 0; step < stepsPerMeasure; step++) {
+      const pattern = settings.patterns[(measure + step) % settings.patterns.length];
+      if (!pattern.length) continue;
+      const time = baseTime + (step / settings.stepsPerBeat) * beat;
       for (const lane of pattern) {
         chart.push(new Note(lane, time));
       }
@@ -116,10 +187,20 @@ function createDemoChart() {
   return chart;
 }
 
+function applyDifficultySettings(difficultyKey) {
+  const settings = getDifficultySettings(difficultyKey);
+  currentScrollSpeed = settings.scrollSpeed;
+  timingWindows = { ...settings.timingWindows };
+}
+
 function resetGame() {
   cancelAnimationFrame(state.animationFrame);
   stopAudio();
-  state.pendingNotes = createDemoChart();
+  if (resultDialog.open) {
+    resultDialog.close();
+  }
+  applyDifficultySettings(state.difficulty);
+  state.pendingNotes = createChart(state.difficulty);
   state.activeNotes = [];
   state.startTime = 0;
   state.running = false;
@@ -130,6 +211,13 @@ function resetGame() {
   state.successfulHits = 0;
   state.lastJudgement = null;
   state.lastJudgementTime = 0;
+  if (resultDifficulty) {
+    resultDifficulty.textContent = "";
+  }
+  laneStates.forEach((laneState) => {
+    laneState.pressed = false;
+    laneState.flashUntil = 0;
+  });
   updateHud();
   clearCanvas();
 }
@@ -137,6 +225,7 @@ function resetGame() {
 async function startGame() {
   if (state.running) return;
   if (resultDialog.open) resultDialog.close();
+  state.lastRunDifficulty = state.difficulty;
   resetGame();
   laneStates.forEach((lane) => {
     lane.pressed = false;
@@ -191,7 +280,7 @@ function updateNotes() {
 
 function removeMissedNotes() {
   const elapsed = getElapsed();
-  const missWindow = TIMING_WINDOWS.good / 1000 + 0.1;
+  const missWindow = timingWindows.good / 1000 + 0.1;
   state.activeNotes = state.activeNotes.filter((note) => {
     if (note.hit) return false;
     if (note.missed) return false;
@@ -305,13 +394,13 @@ function handleHit(lane) {
   const timeDiffMs = (elapsed - note.time) * 1000;
   const absDiff = Math.abs(timeDiffMs);
 
-  if (absDiff <= TIMING_WINDOWS.perfect) {
+  if (absDiff <= timingWindows.perfect) {
     registerHit(note, "Parfait !");
     addScore("perfect");
-  } else if (absDiff <= TIMING_WINDOWS.great) {
+  } else if (absDiff <= timingWindows.great) {
     registerHit(note, "Super !");
     addScore("great");
-  } else if (absDiff <= TIMING_WINDOWS.good) {
+  } else if (absDiff <= timingWindows.good) {
     registerHit(note, "Bien");
     addScore("good");
   } else {
@@ -351,6 +440,25 @@ function updateHud() {
     ? Math.round((state.successfulHits / state.totalNotes) * 100)
     : 100;
   accuracyLabel.textContent = `${accuracy}%`;
+  if (difficultyLabel) {
+    difficultyLabel.textContent = getDifficultySettings(state.difficulty).label;
+  }
+  if (difficultySelect && difficultySelect.value !== state.difficulty) {
+    difficultySelect.value = state.difficulty;
+  }
+}
+
+function handleDifficultyChange(event) {
+  const selected = event.target.value;
+  if (!DIFFICULTIES[selected]) {
+    return;
+  }
+  if (state.running) {
+    event.target.value = state.difficulty;
+    return;
+  }
+  state.difficulty = selected;
+  resetGame();
 }
 
 function endGame() {
@@ -367,6 +475,10 @@ function endGame() {
   resultScore.textContent = `Score final : ${state.score}`;
   resultAccuracy.textContent = `Précision : ${accuracy}%`;
   resultCombo.textContent = `Meilleur combo : ${state.bestCombo}`;
+  if (resultDifficulty) {
+    const settings = getDifficultySettings(state.lastRunDifficulty);
+    resultDifficulty.textContent = `Difficulté : ${settings.label}`;
+  }
   resultDialog.showModal();
 }
 
@@ -391,6 +503,10 @@ window.addEventListener("keyup", handleKeyup);
 
 if (audioInput) {
   audioInput.addEventListener("change", handleAudioSelection);
+}
+
+if (difficultySelect) {
+  difficultySelect.addEventListener("change", handleDifficultyChange);
 }
 
 resetGame();
